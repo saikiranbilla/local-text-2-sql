@@ -1,0 +1,51 @@
+date,customer_type,product,revenue,region
+2023-01-01,SMB,Gadget X,11566,Asia
+2023-01-02,SMB,Widget A,5027,Europe
+2023-01-03,SMB,Gadget X,21635,North America
+2023-01-04,Enterprise,Widget A,43640,Europe
+2023-01-05,SMB,Widget A,42989,Asia
+2023-01-06,Startup,Gadget X,5962,South America
+2023-01-07,Enterprise,Gadget X,45390,South America
+2023-01-08,SMB,Gadget X,14583,Asia
+2023-01-09,Enterprise,Gadget X,28033,North America
+2023-01-10,SMB,Widget A,49196,North America
+2023-01-11,Startup,Widget A,8847,Asia
+2023-01-12,SMB,Widget B,29480,Asia
+2023-01-13,Enterprise,Widget A,49079,South America
+2023-01-14,Startup,Gadget X,44218,North America
+2023-01-15,Startup,Widget B,31676,South America
+2023-01-16,Enterprise,Gadget X,47054,Europe
+2023-01-17,SMB,Widget A,30172,Europe
+2023-01-18,SMB,Gadget X,38931,South America
+2023-01-19,SMB,Gadget X,49030,South America
+2023-01-20,Startup,Widget A,25982,Europe
+2023-01-21,Startup,Widget A,21063,Europe
+2023-01-22,Startup,Widget B,47510,Asia
+2023-01-23,Startup,Widget B,23404,Europe
+2023-01-24,SMB,Gadget X,40816,Europe
+2023-01-25,Startup,Widget B,32091,Europe
+2023-01-26,Enterprise,Gadget X,19110,Asia
+2023-01-27,Enterprise,Widget A,42799,South America
+2023-01-28,Enterprise,Gadget X,14440,Asia
+2023-01-29,Enterprise,Gadget X,15288,Asia
+2023-01-30,SMB,Widget B,5946,South America
+2023-01-31,SMB,Widget A,39109,Europe
+2023-02-01,Startup,Gadget X,25059,Europe
+2023-02-02,Enterprise,Widget B,13132,Asia
+2023-02-03,Enterprise,Widget B,8538,North America
+2023-02-04,SMB,Gadget X,21195,Europe
+2023-02-05,SMB,Widget B,39701,Asia
+2023-02-06,Enterprise,Widget B,47610,Europe
+2023-02-07,Enterprise,Gadget X,6876,North America
+2023-02-08,SMB,Widget A,21440,Europe
+2023-02-09,Enterprise,Gadget X,5211,South America
+2023-02-10,SMB,Gadget X,34054,North America
+2023-02-11,SMB,Widget B,8475,Europe
+2023-02-12,SMB,Gadget X,25937,North America
+2023-02-13,Enterprise,Gadget X,21445,North America
+2023-02-14,Startup,Gadget X,17042,South America
+2023-02-15,SMB,Widget B,43168,Europe
+2023-02-16,Enterprise,Widget A,22463,South America
+2023-02-17,SMB,Widget B,22727,Europe
+2023-02-18,Startup,Widget B,24878,Europe
+2023-02-19,Startup,Gadget X,25871,North America
