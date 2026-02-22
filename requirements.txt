@@ -1,5 +1,12 @@
+anthropic
 duckdb
 pandas
-langchain-community
-langchain-core
-langgraph
+fastapi
+uvicorn
+python-multipart
+python-dotenv
+thefuzz
+sentence-transformers
+scikit-learn
+pytest
+pytest-asyncio

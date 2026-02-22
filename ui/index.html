@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quill — Natural Language BI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      /* Harvey AI Ultra-Dark Monochromatic Theme */
+      --bg: #09090b;
+      /* zinc-950 */
+      --surface: #09090b;
+      /* zinc-950 */
+      --surface2: #18181b;
+      /* zinc-900 */
+      --border: #27272a;
+      /* zinc-800 */
+      --accent: #d4d4d8;
+      /* zinc-300 */
+      --accent-hover: #fafafa;
+      /* zinc-50 */
+      --accent-glow: rgba(255, 255, 255, 0.05);
+      /* very subtle */
+      --text: #f4f4f5;
+      /* zinc-100 */
+      --text-muted: #a1a1aa;
+      /* zinc-400 */
+      --muted: #71717a;
+      /* zinc-500 */
+      --success: #10b981;
+      --error: #ef4444;
+      --sql: #d4d4d8;
+      /* zinc-300 */
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: -0.025em;
+      /* tracking-tight */
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* ── Scrollbars ── */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 99px;
+    }
+
+    /* ══════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════ */
+    .sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: 0;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 4px;
+    }
+
+    .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 6px;
+    }
+
+    .logo-gem {
+      width: 34px;
+      height: 34px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.6px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 5px 6px 0;
+      font-weight: 500;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 6px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 8px;
+      margin-bottom: 8px;
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      line-height: 1.4;
+    }
+
+    .chip .chip-icon {
+      color: var(--muted);
+      font-size: 12px;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .chip:hover {
+      background: var(--surface2);
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .chip:hover .chip-icon {
+      color: var(--accent);
+    }
+
+    .chip-arrow {
+      margin-left: auto;
+      color: var(--border);
+      font-size: 10px;
+      transition: color 0.15s;
+    }
+
+    .chip:hover .chip-arrow {
+      color: var(--accent);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--muted);
+      padding: 8px 6px 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    /* ══════════════════════════════════════════
+       MAIN
+    ══════════════════════════════════════════ */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .topbar {
+      padding: 16px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .topbar-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .topbar-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Results area */
+    .results-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px;
+      gap: 0;
+    }
+
+    .empty-gem {
+      width: 56px;
+      height: 56px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: var(--muted);
+    }
+
+    .empty-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      opacity: 0.45;
+      margin-bottom: 8px;
+    }
+
+    .empty-sub {
+      font-size: 13.5px;
+      color: var(--muted);
+      opacity: 0.7;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    /* ── Dropzone ── */
+    .dropzone {
+      margin: 0 28px 14px;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      color: #c7d2fe;
+    }
+
+    .dropzone-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: var(--accent);
+      opacity: 0.8;
+    }
+
+    .dropzone-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* ── Success Chip ── */
+    .success-chip-container {
+      margin: 0 28px 14px;
+      display: none;
+    }
+
+    .success-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+      padding: 6px 12px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 500;
+      animation: fadeUp 0.3s ease;
+    }
+
+    /* ── Input area ── */
+    .input-area {
+      padding: 14px 28px 18px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .q-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 18px;
+      color: var(--text);
+      font-size: 14.5px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .q-input:focus {
+      border-color: var(--muted);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+    }
+
+    .q-input::placeholder {
+      color: var(--muted);
+    }
+
+    .q-input:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--text);
+      border: none;
+      border-radius: 10px;
+      color: var(--bg);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover:not(:disabled) {
+      background: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .send-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .input-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      opacity: 0.75;
+    }
+
+    /* ══════════════════════════════════════════
+       CARDS
+    ══════════════════════════════════════════ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      animation: fadeUp 0.3s ease both;
+      flex-shrink: 0;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+      background: transparent;
+    }
+
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Thinking card ── */
+    .thinking-card {
+      border-left: 2px solid var(--muted);
+      background: transparent;
+    }
+
+    .thinking-body {
+      padding: 12px 16px;
+    }
+
+    .thinking-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text);
+      animation: pulseAnim 1.4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulseAnim {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.3;
+        transform: scale(0.75);
+      }
+    }
+
+    .pulse-dot.done {
+      animation: none;
+      opacity: 0;
+      width: 0;
+      display: none;
+    }
+
+    .thinking-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 2px;
+    }
+
+    .t-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+      transition: opacity 0.3s ease;
+    }
+
+    .t-step-icon {
+      margin-top: 2px;
+      font-size: 10px;
+      flex-shrink: 0;
+      width: 12px;
+      text-align: center;
+    }
+
+    .t-step.active {
+      color: var(--text);
+    }
+
+    .t-step.active .t-step-icon {
+      color: var(--text);
+      animation: spin 1s linear infinite;
+    }
+
+    .t-step.done .t-step-icon {
+      color: var(--muted);
+    }
+
+    .t-step.done {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    /* ── SQL card (Accordion) ── */
+    details.sql-details {
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+    }
+
+    details.sql-details summary {
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      /* remove default arrow */
+    }
+
+    details.sql-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.sql-details summary i.fa-chevron-right {
+      transition: transform 0.2s ease;
+      font-size: 10px;
+    }
+
+    details.sql-details[open] summary i.fa-chevron-right {
+      transform: rotate(90deg);
+    }
+
+    .sql-code {
+      padding: 14px 16px;
+      font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+      font-size: 12px;
+      color: var(--sql);
+      background: rgba(0, 0, 0, 0.5);
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    /* ── Results card ── */
+    .row-badge {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 99px;
+      padding: 2px 10px;
+      font-size: 11.5px;
+      font-weight: 500;
+    }
+
+    .table-wrap {
+      max-height: 400px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--surface2);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background 0.1s;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    tbody td {
+      padding: 8px 14px;
+      color: var(--text);
+      white-space: nowrap;
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .null-val {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 12px;
+    }
+
+    .card-footer {
+      padding: 9px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* ── Error card ── */
+    .error-card {
+      border-left: 3px solid var(--error);
+    }
+
+    .error-body {
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .error-icon {
+      color: var(--error);
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .error-msg {
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    /* ── Spinner ── */
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spin {
+      animation: spin 0.75s linear infinite;
+    }
+
+    /* ── Empty results row ── */
+    .no-results {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+  </style>
+  <style>
+    /* ── LIGHT MODE OVERRIDES ── */
+    [data-theme="light"] {
+      --bg: #f4f4f5;
+      --surface: #ffffff;
+      --surface2: #f4f4f5;
+      --border: #d4d4d8;
+      --accent: #09090b;
+      --accent-hover: #18181b;
+      --accent-glow: rgba(0, 0, 0, 0.05);
+      --text: #09090b;
+      --text-muted: #52525b;
+      --muted: #71717a;
+      --success: #059669;
+      --error: #dc2626;
+      --sql: #18181b;
+    }
+
+    [data-theme="light"] .text-zinc-100 {
+      color: #09090b !important;
+    }
+
+    [data-theme="light"] .text-zinc-300 {
+      color: #3f3f46 !important;
+    }
+
+    [data-theme="light"] .hover\:text-white:hover {
+      color: #09090b !important;
+    }
+
+    [data-theme="light"] .text-zinc-400 {
+      color: #52525b !important;
+    }
+
+    [data-theme="light"] .text-zinc-500 {
+      color: #71717a !important;
+    }
+
+    [data-theme="light"] .bg-\[\#0a0a0a\] {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .bg-zinc-800 {
+      background-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-800:hover {
+      background-color: #d4d4d8 !important;
+    }
+
+    [data-theme="light"] .border-zinc-800 {
+      border-color: #d4d4d8 !important;
+    }
+
+    /* Fix table row background */
+    [data-theme="light"] table {
+      background-color: #ffffff;
+    }
+
+    [data-theme="light"] thead th {
+      background-color: #f4f4f5 !important;
+      color: #52525b !important;
+      border-bottom: 1px solid #d4d4d8 !important;
+    }
+
+    [data-theme="light"] tbody tr {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e4e4e7 !important;
+    }
+
+    [data-theme="light"] tbody tr:nth-child(even) {
+      background-color: #fafafa !important;
+    }
+
+    [data-theme="light"] tbody tr:hover {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .sql-code {
+      background: rgba(244, 244, 245, 0.8);
+    }
+
+    [data-theme="light"] .card-footer {
+      background: rgba(0, 0, 0, 0.02) !important;
+    }
+
+    body,
+    .sidebar,
+    .main,
+    .topbar,
+    .input-area,
+    .card,
+    .q-input,
+    .chip {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════ -->
+  <aside class="sidebar h-screen">
+    <div class="flex-1 overflow-y-auto custom-scrollbar" style="padding: 24px 16px; padding-bottom: 8px;">
+      <div class="flex items-center gap-3 px-2 py-4 cursor-pointer group" onclick="startNewQuery()">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg"
+          class="flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+          <defs>
+            <linearGradient id="qS" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#FFFFFF" />
+              <stop offset="100%" stop-color="#71717A" />
+            </linearGradient>
+          </defs>
+          <circle cx="10.5" cy="10.5" r="6.5" stroke="url(#qS)" stroke-width="1.5" />
+          <path d="M 12 11.5 C 17 12.5 19.5 15.5 21.5 21.5 C 15.5 19.5 12.5 17 11.5 12 Z" fill="url(#qS)" />
+          <path d="M 18 3 L 18.25 4.75 L 20 5 L 18.25 5.25 L 18 7 L 17.75 5.25 L 16 5 L 17.75 4.75 Z" fill="url(#qS)"
+            opacity="0.8" />
+        </svg>
+        <span class="text-[19px] font-semibold text-zinc-100 tracking-tight">Quill</span>
+      </div>
+      <div class="logo-sub">Natural Language BI</div>
+
+      <button onclick="startNewQuery()"
+        class="w-full py-2 mt-5 mb-2 border border-zinc-800 rounded-md text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 px-3 text-[13px] font-medium">
+        <i class="fa-solid fa-plus text-[11px]"></i> New Query
+      </button>
+
+      <button onclick="exportSessionPDF()"
+        class="w-full py-1.5 mb-1 border border-zinc-800 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 px-3 text-[12px]">
+        <i class="fa-solid fa-file-pdf text-[11px]"></i> Export Session PDF
+      </button>
+
+      <button id="theme-toggle" title="Toggle light/dark mode (L)"
+        class="w-full py-1.5 mb-1 border border-zinc-800 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 px-3 text-[12px]">
+        <i id="theme-icon" class="fa-solid fa-sun text-[11px]"></i> <span id="theme-label">Light Mode</span>
+      </button>
+
+      <div class="divider"></div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">Your Tables</div>
+      <div id="tablesList" style="margin-bottom: 16px;">
+        <!-- Tables will be loaded here -->
+        <div style="padding: 0 8px; font-size: 12px; color: var(--muted); font-style: italic;" id="noTablesMsg">
+          No custom tables loaded
+        </div>
+      </div>
+
+      <div class="section-label">Example Questions</div>
+      <div id="exampleQuestions">
+        <button class="chip" onclick="submitQuestion('How many orders in 1997?')">
+          <i class="fa-solid fa-circle-question chip-icon"></i>
+          How many orders in 1997?
+          <i class="fa-solid fa-chevron-right chip-arrow"></i>
+        </button>
+
+        <button class="chip" onclick="submitQuestion('Top 5 customers by revenue')">
+          <i class="fa-solid fa-circle-question chip-icon"></i>
+          Top 5 customers by revenue
+          <i class="fa-solid fa-chevron-right chip-arrow"></i>
+        </button>
+
+        <button class="chip" onclick="submitQuestion('Which product category generates most revenue?')">
+          <i class="fa-solid fa-circle-question chip-icon"></i>
+          Which product category generates most revenue?
+          <i class="fa-solid fa-chevron-right chip-arrow"></i>
+        </button>
+
+        <button class="chip" onclick="submitQuestion('Show employees and their total sales')">
+          <i class="fa-solid fa-circle-question chip-icon"></i>
+          Show employees and their total sales
+          <i class="fa-solid fa-chevron-right chip-arrow"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="p-4 border-t border-zinc-800 bg-[#0a0a0a] shrink-0">
+      <label for="csvFileInput" class="chip group"
+        style="display: flex; justify-content: center; font-weight: 500; font-size: 13px; color: var(--muted); border: 1px solid var(--border); transition: all 0.15s; cursor: pointer; margin-bottom: 12px;">
+        <i class="fa-solid fa-cloud-arrow-up chip-icon"></i> Upload CSV
+        <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleFiles(this.files)" />
+      </label>
+
+      <div class="text-center text-[11px] text-zinc-500 opacity-75">
+        <i class="fa-solid fa-microchip"></i>
+        Powered by Qwen2.5 + DuckDB
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════════ -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-icon"><i class="fa-solid fa-database"></i></div>
+      <span class="topbar-title">Query your data</span>
+    </div>
+
+    <div class="results-area" id="resultsArea">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-gem" style="background: transparent; border: none;">
+          <svg viewBox="0 0 24 24" width="52" height="52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="qSE" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#A1A1AA" />
+                <stop offset="100%" stop-color="#3F3F46" />
+              </linearGradient>
+            </defs>
+            <circle cx="10.5" cy="10.5" r="6.5" stroke="url(#qSE)" stroke-width="1.5" />
+            <path d="M 12 11.5 C 17 12.5 19.5 15.5 21.5 21.5 C 15.5 19.5 12.5 17 11.5 12 Z" fill="url(#qSE)" />
+            <path d="M 18 3 L 18.25 4.75 L 20 5 L 18.25 5.25 L 18 7 L 17.75 5.25 L 16 5 L 17.75 4.75 Z" fill="url(#qSE)"
+              opacity="0.8" />
+          </svg>
+        </div>
+        <div class="empty-title">Ask anything about your data</div>
+        <div class="empty-sub">Type a question below or pick an example from the sidebar to get started.</div>
+      </div>
+    </div>
+
+    <div class="success-chip-container" id="uploadSuccessContainer">
+      <div class="success-chip" id="uploadSuccessChip">
+        <i class="fa-solid fa-check-circle"></i> <span>Table loaded successfully</span>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <input type="text" class="q-input" id="questionInput" placeholder="Ask anything about your data…"
+          onkeydown="if(event.key==='Enter') handleSubmit()" autocomplete="off" />
+        <button class="send-btn" id="sendBtn" onclick="handleSubmit()" title="Send">
+          <i class="fa-solid fa-arrow-up" id="sendIcon"></i>
+        </button>
+      </div>
+      <div class="input-hint">
+        <i class="fa-solid fa-lock" style="font-size:10px;"></i>
+        Powered by local LLM — your data never leaves your machine
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* ════════════════════════════════════════════
+       STATE
+    ════════════════════════════════════════════ */
+    let loading = false;
+    let customTables = [];
+    let selectedTables = [];
+    let chatHistory = [];
+    let currentSessionSQL = "";
+
+    /* ════════════════════════════════════════════
+       INITIALIZATION
+    ════════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshSidebar();
+    });
+
+    /* ════════════════════════════════════════════
+       LOADING STATE
+    ════════════════════════════════════════════ */
+    function setLoading(on) {
+      loading = on;
+      const btn = document.getElementById('sendBtn');
+      const icon = document.getElementById('sendIcon');
+      const inp = document.getElementById('questionInput');
+      btn.disabled = on;
+      inp.disabled = on;
+      icon.className = on
+        ? 'fa-solid fa-circle-notch spin'
+        : 'fa-solid fa-arrow-up';
+    }
+
+    /* ════════════════════════════════════════════
+       RESULT AREA HELPERS
+    ════════════════════════════════════════════ */
+    function clearResults() {
+      document.getElementById('resultsArea').innerHTML = '';
+    }
+
+    function appendCard(el) {
+      document.getElementById('resultsArea').appendChild(el);
+      scrollBottom();
+    }
+
+    function scrollBottom() {
+      const a = document.getElementById('resultsArea');
+      requestAnimationFrame(() => { a.scrollTop = a.scrollHeight; });
+    }
+
+    function startNewQuery() {
+      if (loading) return;
+
+      chatHistory = []; // Reset memory for new session if desired, or keep it. 
+      // Actually, "New Query" button usually implies a fresh start.
+      if (loading) return;
+
+      const resultsArea = document.getElementById('resultsArea');
+      resultsArea.innerHTML = `
+      <div class="empty-state" id="emptyState">
+        <div class="empty-gem"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="empty-title">Ask anything about your data</div>
+        <div class="empty-sub">Type a question below or pick an example from the sidebar to get started.</div>
+      </div>
+      `;
+
+      const input = document.getElementById('questionInput');
+      input.value = '';
+
+      if (typeof currentChart !== 'undefined' && currentChart) {
+        currentChart.destroy();
+        currentChart = null;
+      }
+    }
+
+    /* ════════════════════════════════════════════
+       SUBMIT
+    ════════════════════════════════════════════ */
+    function submitQuestion(q) {
+      document.getElementById('questionInput').value = q;
+      handleSubmit();
+    }
+
+    function handleSubmit() {
+      if (loading) return;
+      const input = document.getElementById('questionInput');
+      const q = input.value.trim();
+      if (!q) return;
+
+      // Hide empty state if it's there
+      const empty = document.getElementById('emptyState');
+      if (empty) empty.style.display = 'none';
+
+      setLoading(true);
+      runQuery(q);
+    }
+
+    /* ════════════════════════════════════════════
+       CARD: THINKING
+    ════════════════════════════════════════════ */
+    let thinkingCard = null;
+
+    function createThinkingCard() {
+      const card = document.createElement('div');
+      card.className = 'card thinking-card';
+      card.innerHTML = `
+      <div class="thinking-body">
+        <div class="thinking-header">
+          <div class="pulse-dot"></div>
+          <span>Thinking…</span>
+        </div>
+        <div class="thinking-steps"></div>
+      </div>
+    `;
+      appendCard(card);
+      thinkingCard = card;
+      return card;
+    }
+
+    function addThinkingStep(content) {
+      if (!thinkingCard) return;
+      const steps = thinkingCard.querySelector('.thinking-steps');
+      if (!steps) return;
+
+      // Mark previous active step as done
+      steps.querySelectorAll('.t-step.active').forEach(el => {
+        el.classList.replace('active', 'done');
+        el.querySelector('.t-step-icon').className = 't-step-icon fa-solid fa-check';
+      });
+
+      const step = document.createElement('div');
+      step.className = 't-step active';
+      step.innerHTML = `
+      <i class="t-step-icon fa-solid fa-circle-notch"></i>
+      <span>${escHtml(content)}</span>
+    `;
+      steps.appendChild(step);
+      scrollBottom();
+    }
+
+    function finishThinking() {
+      if (!thinkingCard) return;
+      const dot = thinkingCard.querySelector('.pulse-dot');
+      if (dot) dot.classList.add('done');
+      const steps = thinkingCard.querySelector('.thinking-steps');
+      if (!steps) return;
+      steps.querySelectorAll('.t-step.active').forEach(el => {
+        el.classList.replace('active', 'done');
+        el.querySelector('.t-step-icon').className = 't-step-icon fa-solid fa-check';
+      });
+    }
+
+    /* ════════════════════════════════════════════
+       CARD: SQL
+    ════════════════════════════════════════════ */
+    function createSQLCard(sql) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+      <details class="sql-details">
+        <summary>
+          <i class="fa-solid fa-code"></i> Generated SQL
+          <i class="fa-solid fa-chevron-right" style="margin-left:auto;"></i>
+        </summary>
+        <div class="sql-code" id="sqlContent">${escHtml(sql)}</div>
+      </details>
+    `;
+      appendCard(card);
+    }
+
+    function copySQL(btn) {
+      const code = document.getElementById('sqlContent');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 2000);
+      });
+    }
+
+    /* ════════════════════════════════════════════
+       CARD: RESULTS TABLE
+    ════════════════════════════════════════════ */
+    function createResultsCard(records, rowCount, attempts) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      let tableHTML;
+      if (!records || records.length === 0) {
+        tableHTML = '<div class="no-results"><i class="fa-solid fa-inbox" style="margin-right:6px; opacity:0.4;"></i>No results returned</div>';
+      } else {
+        const cols = Object.keys(records[0]);
+
+        const ths = cols.map(c =>
+          `<th title="${escHtml(c)}">${escHtml(c)}</th>`
+        ).join('');
+
+        const trs = records.map(row => {
+          const tds = cols.map(c => {
+            const v = row[c];
+            if (v === null || v === undefined) {
+              return `<td><span class="null-val">—</span></td>`;
+            }
+            const display = fmtVal(v);
+            return `<td title="${escHtml(String(v))}">${escHtml(display)}</td>`;
+          }).join('');
+          return `<tr>${tds}</tr>`;
+        }).join('');
+
+        tableHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead><tr>${ths}</tr></thead>
+            <tbody>${trs}</tbody>
+          </table>
+        </div>
+      `;
+      }
+
+      const attemptStr = `${attempts} attempt${attempts !== 1 ? 's' : ''}`;
+      const rowStr = `${rowCount} row${rowCount !== 1 ? 's' : ''}`;
+
+      card.innerHTML = `
+      <div class="card-header">
+        <div class="card-header-left">
+          <i class="fa-solid fa-table" style="color:var(--success); font-size:13px;"></i>
+          <span style="color:var(--text);">Results</span>
+        </div>
+        <span class="row-badge">${rowCount} row${rowCount !== 1 ? 's' : ''}</span>
+      </div>
+      ${tableHTML}
+      <div class="chart-container hidden" style="display: none; padding: 24px; border-top: 1px solid var(--border);">
+        <div style="position: relative; height: 320px; width: 100%;">
+          <canvas class="result-chart"></canvas>
+        </div>
+      </div>
+      <div class="insight-summary-card hidden" style="display: none; padding: 18px 24px; border-top: 1px solid var(--border); background: var(--accent-glow);">
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <i class="fa-solid fa-lightbulb" style="color: #fcd34d; font-size: 16px; margin-top: 2px;"></i>
+          <div class="insight-text" style="font-size: 14px; color: var(--text); line-height: 1.6; flex: 1;"></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        ${rowStr} returned in ${attemptStr}
+      </div>
+    `;
+      appendCard(card);
+      return card;
+    }
+
+    /* ════════════════════════════════════════════
+       CARD: ERROR
+    ════════════════════════════════════════════ */
+    function createErrorCard(msg) {
+      const card = document.createElement('div');
+      card.className = 'card error-card';
+      card.innerHTML = `
+      <div class="error-body">
+        <i class="fa-solid fa-circle-exclamation error-icon"></i>
+        <div class="error-msg">${escHtml(msg)}</div>
+      </div>
+    `;
+      appendCard(card);
+    }
+
+    /* ════════════════════════════════════════════
+       CSV UPLOAD & TABLES
+    ════════════════════════════════════════════ */
+
+    function handleFiles(files) {
+      if (files.length === 0) return;
+      const file = files[0];
+      if (!file.name.endsWith('.csv')) {
+        alert("Please upload a CSV file.");
+        return;
+      }
+      uploadFile(file);
+    }
+
+    async function uploadFile(file) {
+      const uploadLabel = document.querySelector('label[for="csvFileInput"]');
+      const originalHTML = uploadLabel.innerHTML;
+      uploadLabel.innerHTML = `<i class="fa-solid fa-circle-notch spin chip-icon"></i> Uploading...`;
+      uploadLabel.style.pointerEvents = 'none';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          showSuccessChip(result.table_name, result.row_count);
+          refreshSidebar(); // Refresh table list
+          updateExampleQuestions(result.table_name);
+        } else {
+          alert(result.detail || "Upload failed");
+        }
+      } catch (error) {
+        console.error('Upload Error:', error);
+        alert("An error occurred during upload.");
+      } finally {
+        setTimeout(() => {
+          uploadLabel.innerHTML = originalHTML;
+          uploadLabel.style.pointerEvents = 'auto';
+        }, 1500);
+        document.getElementById('csvFileInput').value = ''; // Reset input
+      }
+    }
+
+    function showSuccessChip(tableName, rowCount) {
+      const container = document.getElementById('uploadSuccessContainer');
+      const chip = document.getElementById('uploadSuccessChip');
+      chip.innerHTML = `<i class="fa-solid fa-check-circle"></i> <span>Loaded <b>${tableName}</b> (${rowCount.toLocaleString()} rows)</span>`;
+      container.style.display = 'block';
+
+      setTimeout(() => {
+        container.style.display = 'none';
+      }, 4000);
+    }
+
+    async function refreshSidebar() {
+      try {
+        const response = await fetch('/tables');
+        const tables = await response.json();
+
+        const tablesList = document.getElementById('tablesList');
+
+        if (Array.isArray(tables) && tables.length > 0) {
+          tablesList.innerHTML = '';
+
+          // Clean up selectedTables to only include ones that still exist
+          selectedTables = selectedTables.filter(t => tables.includes(t));
+
+          tables.forEach(tableName => {
+            const isSelected = selectedTables.includes(tableName);
+            const chip = document.createElement('div');
+
+            // Apply Harvey Styling based on state
+            chip.className = `chip group relative ${isSelected ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`;
+            chip.style.cursor = 'pointer';
+
+            // Toggle Logic
+            chip.onclick = () => {
+              if (isSelected) {
+                selectedTables = selectedTables.filter(t => t !== tableName);
+              } else {
+                selectedTables.push(tableName);
+              }
+              refreshSidebar(); // Re-render to update UI states
+            };
+
+            chip.innerHTML = `
+            <i class="fa-solid fa-table chip-icon"></i>
+            <div style="flex:1;">
+              <div style="font-weight:500;">${tableName}</div>
+            </div>
+            <button onclick="deleteTable(event, '${tableName}')" class="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500 hover:text-red-400" title="Delete Table">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          `;
+            tablesList.appendChild(chip);
+          });
+        } else {
+          tablesList.innerHTML = '<div style="padding: 0 8px; font-size: 12px; color: var(--muted); font-style: italic;">No custom tables loaded</div>';
+        }
+      } catch (error) {
+        console.error('Error fetching tables:', error);
+      }
+    }
+
+    async function deleteTable(event, tableName) {
+      event.stopPropagation(); // Prevent toggling selection
+      if (!confirm(`Are you sure you want to delete the table '${tableName}'?`)) return;
+
+      try {
+        const response = await fetch(`/api/tables/${tableName}`, { method: 'DELETE' });
+        if (response.ok) {
+          refreshSidebar();
+        } else {
+          alert("Failed to delete table");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function updateExampleQuestions(tableName) {
+      const eqDiv = document.getElementById('exampleQuestions');
+      // Prepend a new question targeting the new table
+      const btn = document.createElement('button');
+      btn.className = 'chip';
+      const qText = `Show first 10 rows from ${tableName}`;
+      btn.onclick = () => submitQuestion(qText);
+      btn.innerHTML = `
+      <i class="fa-solid fa-circle-question chip-icon" style="color:var(--success);"></i>
+      ${qText}
+      <i class="fa-solid fa-chevron-right chip-arrow"></i>
+    `;
+      eqDiv.insertBefore(btn, eqDiv.firstChild);
+
+      // Only keep top 4
+      if (eqDiv.children.length > 4) {
+        eqDiv.removeChild(eqDiv.lastChild);
+      }
+    }
+
+    /* ════════════════════════════════════════════
+       SSE STREAM
+    ════════════════════════════════════════════ */
+    async function runQuery(question) {
+      createThinkingCard();
+
+      try {
+        const res = await fetch('/api/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            selectedTables,
+            chat_history: chatHistory
+          }),
+        });
+
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // keep partial last line
+
+          for (const line of lines) {
+            const t = line.trim();
+            if (!t.startsWith('data:')) continue;
+            const raw = t.slice(5).trim();
+            if (!raw) continue;
+            let evt;
+            try { evt = JSON.parse(raw); } catch { continue; }
+            handleEvent(evt);
+          }
+        }
+      } catch (err) {
+        finishThinking();
+        createErrorCard(`Connection error: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function handleEvent(evt) {
+      switch (evt.type) {
+        case 'thinking':
+          addThinkingStep(evt.content);
+          break;
+
+        case 'sql':
+          currentSessionSQL = evt.content;
+          createSQLCard(evt.content);
+          break;
+
+        case 'result':
+          finishThinking();
+          const card = createResultsCard(evt.content, evt.row_count, evt.attempts);
+          attemptChartGeneration(evt.content, card);
+          break;
+
+        case 'error':
+          finishThinking();
+          createErrorCard(evt.content);
+          break;
+
+        case 'summary':
+          const cards = document.querySelectorAll('.card');
+          const latestCard = cards[cards.length - 1];
+          if (latestCard) {
+            const summaryContainer = latestCard.querySelector('.insight-summary-card');
+            const summaryText = latestCard.querySelector('.insight-text');
+            if (summaryContainer && summaryText) {
+              summaryContainer.style.display = 'block';
+              summaryContainer.classList.remove('hidden');
+              summaryText.innerHTML += escHtml(evt.content);
+              scrollBottom();
+            }
+          }
+          break;
+
+        case 'summary_done':
+          finishThinking();
+          // Store in memory
+          const currentQuestion = document.getElementById('questionInput').value;
+          chatHistory.push({ question: currentQuestion, sql: currentSessionSQL });
+          document.getElementById('questionInput').value = ""; // Clear for next follow-up
+          break;
+      }
+    }
+
+    function exportSessionPDF() {
+      const target = document.getElementById('resultsArea');
+      if (!target || target.children.length === 0) {
+        alert('No session data to export yet. Run a query first.');
+        return;
+      }
+      const opt = {
+        margin: 0.5,
+        filename: 'quill-session-report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+      html2pdf().set(opt).from(target).save();
+    }
+
+    /* ════════════════════════════════════════════
+       CHART GENERATION
+    ════════════════════════════════════════════ */
+
+    function attemptChartGeneration(data, card) {
+      console.log("Attempting chart logic...", data);
+      if (!card) return;
+      const container = card.querySelector('.chart-container');
+      if (!container) return;
+
+      if (!data || data.length <= 1 || data.length > 100) {
+        console.log("Chart skipped: Data empty, has only 1 row, or > 100 rows.");
+        container.style.display = 'none';
+        return;
+      }
+
+      const keys = Object.keys(data[0]);
+      let xCol = null;
+      const yCols = [];
+
+      for (const k of keys) {
+        // Scan down the column until we find a non-null value to determine its type
+        for (let i = 0; i < data.length; i++) {
+          const val = data[i][k];
+          if (val !== null && val !== undefined) {
+            if (typeof val === 'number') {
+              yCols.push(k);
+            } else if (typeof val === 'string' && !xCol) {
+              xCol = k;
+            }
+            break; // Type determined, move to next column
+          }
+        }
+      }
+
+      // Fallback: If no string column was found, but we have multiple numbers, pick one as the X-axis
+      if (!xCol && yCols.length >= 2) {
+        const keywordRegex = /year|month|day|date|week|id/i;
+        const matchIdx = yCols.findIndex(c => keywordRegex.test(c));
+
+        if (matchIdx !== -1) {
+          xCol = yCols.splice(matchIdx, 1)[0]; // Extract the time/id column
+        } else {
+          xCol = yCols.shift(); // Just take the very first column
+        }
+      }
+
+      if (!xCol || yCols.length === 0) {
+        console.log("Chart skipped: Could not find at least 1 X-axis column and 1 Y-axis column.", { xCol, yCols });
+        container.style.display = 'none';
+        return;
+      }
+
+      console.log(`Rendering Chart! X-Axis: ${xCol}, Y-Axes:`, yCols);
+      container.classList.remove('hidden');
+      container.style.display = 'block';
+      container.style.visibility = 'visible';
+      container.style.opacity = '1';
+
+      // Slight timeout to let DOM settle after table render
+      setTimeout(() => {
+        const ctx = container.querySelector('.result-chart').getContext('2d');
+        const labels = data.map(r => r[xCol] || 'Unknown');
+
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
+        // Indigo Monochromatic Palette (Dark Mode)
+        const darkBgColors = [
+          'rgba(99, 102, 241, 0.9)', // Primary Indigo 500
+          'rgba(129, 140, 248, 0.8)', // Indigo 400
+          'rgba(165, 180, 252, 0.7)', // Indigo 300
+          'rgba(199, 210, 254, 0.6)', // Indigo 200
+          'rgba(224, 231, 255, 0.5)'  // Indigo 100
+        ];
+
+        const darkBorderColors = [
+          'rgba(79, 70, 229, 1)',   // Indigo 600
+          'rgba(99, 102, 241, 1)',
+          'rgba(129, 140, 248, 1)',
+          'rgba(165, 180, 252, 1)',
+          'rgba(199, 210, 254, 1)'
+        ];
+
+        // Teal/Cyan Monochromatic Palette (Light Mode)
+        const lightBgColors = [
+          'rgba(20, 184, 166, 0.9)', // Teal 500
+          'rgba(45, 212, 191, 0.8)', // Teal 400
+          'rgba(94, 234, 212, 0.7)', // Teal 300
+          'rgba(153, 246, 228, 0.6)', // Teal 200
+          'rgba(204, 251, 241, 0.5)'  // Teal 100
+        ];
+
+        const lightBorderColors = [
+          'rgba(13, 148, 136, 1)',   // Teal 600
+          'rgba(20, 184, 166, 1)',
+          'rgba(45, 212, 191, 1)',
+          'rgba(94, 234, 212, 1)',
+          'rgba(153, 246, 228, 1)'
+        ];
+
+        const bgColors = isLight ? lightBgColors : darkBgColors;
+        const borderColors = isLight ? lightBorderColors : darkBorderColors;
+
+        // Advanced Chart Heuristics for UIUC Datasets
+        let chartType = 'bar';
+        let indexAxis = 'x';
+        let fillArea = false;
+        let isStacked = false;
+        let showLegend = false;
+        let showDataLabels = false;
+
+        const xColLower = xCol.toLowerCase();
+        const isTrend = xColLower.includes('year') || xColLower.includes('term');
+        const hasGrades = yCols.some(c => ['a+', 'a', 'a-', 'b+', 'b', 'b-', 'c+', 'c', 'c-', 'd+', 'd', 'd-', 'f', 'w'].includes(c.toLowerCase()));
+        const isPercentage = yCols.some(c => c.toLowerCase().includes('percent') || c.toLowerCase() === 'rate');
+
+        let finalYCols = [...yCols];
+        let finalData = data;
+
+        if (hasGrades) {
+          // Grade Distribution Stacked Bar Chart Heuristic
+          chartType = 'bar';
+          isStacked = true;
+          showLegend = true;
+
+          // Combine raw grades into standard letter buckets
+          finalYCols = ['A', 'B', 'C', 'D', 'F'];
+
+          finalData = data.map(r => {
+            return {
+              [xCol]: r[xCol],
+              'A': (r['A+'] || 0) + (r['A'] || 0) + (r['A-'] || 0),
+              'B': (r['B+'] || 0) + (r['B'] || 0) + (r['B-'] || 0),
+              'C': (r['C+'] || 0) + (r['C'] || 0) + (r['C-'] || 0),
+              'D': (r['D+'] || 0) + (r['D'] || 0) + (r['D-'] || 0),
+              'F': (r['F'] || 0)
+            };
+          });
+
+        } else if (isTrend && isPercentage) {
+          // Trend line chart heuristic
+          chartType = 'line';
+          fillArea = false;
+          showLegend = yCols.length > 1;
+        } else if (yCols.length === 1 && data.length <= 10) {
+          // Clean horizontal bar chart for 2-column results with max 10
+          chartType = 'bar';
+          indexAxis = 'y'; // horizontal
+          showLegend = false;
+          showDataLabels = true;
+          // Sort descending if we have a top 10 question to make horizontal rank look natural
+          const sortedPairs = data.map(r => ({ label: r[xCol], val: r[yCols[0]] })).sort((a, b) => b.val - a.val);
+          // Apply sorting back explicitly just for rendering cleanly in horizontal mode
+          labels.length = 0; // clear
+          finalData.length = 0;
+          for (let i = 0; i < sortedPairs.length; i++) {
+            labels.push(sortedPairs[i].label || 'Unknown');
+            finalData.push({ [xCol]: sortedPairs[i].label, [yCols[0]]: sortedPairs[i].val });
+          }
+        } else {
+          // General fallback
+          chartType = 'bar';
+        }
+
+        const tickColor = isLight ? '#52525b' : '#94a3b8';
+        const gridColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+        const tooltipBg = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 17, 23, 0.9)';
+        const tooltipText = isLight ? '#09090b' : '#e2e8f0';
+        const tooltipBorder = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255, 255, 255, 0.1)';
+
+        const datasets = finalYCols.map((col, i) => {
+          return {
+            label: col,
+            data: finalData.map(r => r[col]),
+            backgroundColor: bgColors[i % bgColors.length],
+            borderColor: borderColors[i % borderColors.length],
+            borderWidth: 1,
+            borderRadius: chartType === 'bar' && !isStacked ? 4 : 0,
+            fill: chartType === 'line' ? fillArea : false,
+            tension: chartType === 'line' ? 0.3 : 0,
+            pointBackgroundColor: chartType === 'line' ? borderColors[0] : undefined,
+            pointRadius: chartType === 'line' ? 4 : 0,
+            pointHoverRadius: chartType === 'line' ? 6 : 0
+          };
+        });
+
+        const scaleOptions = {
+          x: {
+            stacked: isStacked,
+            ticks: { color: tickColor },
+            grid: { color: gridColor, drawBorder: false }
+          },
+          y: {
+            stacked: isStacked,
+            ticks: { color: tickColor },
+            grid: { color: gridColor, drawBorder: false }
+          }
+        };
+
+        Chart.defaults.color = tickColor;
+
+        // Define an inline plugin for data labels at the end of bars
+        const dataLabelsPlugin = {
+          id: 'dataLabelsPlugin',
+          afterDatasetsDraw(chart, args, pluginOptions) {
+            if (!showDataLabels) return;
+            const { ctx, data } = chart;
+            ctx.save();
+            ctx.font = '11px Inter, sans-serif';
+            ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'light' ? '#52525b' : '#cbd5e1';
+            ctx.textBaseline = 'middle';
+
+            chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
+              const value = data.datasets[0].data[index];
+              const numVal = Number(value);
+              const formattedValue = Number.isInteger(numVal) ? numVal.toString() : numVal.toFixed(1);
+
+              if (chart.options.indexAxis === 'y') {
+                // Horizontal bar
+                ctx.textAlign = 'left';
+                ctx.fillText(formattedValue, datapoint.x + 6, datapoint.y);
+              } else {
+                // Vertical bar
+                ctx.textAlign = 'center';
+                ctx.fillText(formattedValue, datapoint.x, datapoint.y - 8);
+              }
+            });
+          }
+        };
+
+        new Chart(ctx, {
+          type: chartType,
+          data: {
+            labels: labels,
+            datasets: datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: indexAxis,
+            layout: {
+              padding: { right: showDataLabels && indexAxis === 'y' ? 40 : 0 } // Extra padding for text to fit
+            },
+            plugins: {
+              legend: {
+                display: showLegend,
+                labels: { color: tickColor, font: { family: 'inherit' } }
+              },
+              tooltip: {
+                backgroundColor: tooltipBg,
+                titleColor: tooltipText,
+                bodyColor: tooltipText,
+                borderColor: tooltipBorder,
+                borderWidth: 1
+              }
+            },
+            scales: scaleOptions
+          },
+          plugins: [dataLabelsPlugin]
+        });
+
+      }, 50); // 50ms delay for DOM
+
+      scrollBottom();
+    }
+
+    /* ════════════════════════════════════════════
+       UTILITIES
+    ════════════════════════════════════════════ */
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function fmtVal(v) {
+      if (typeof v === 'number') {
+        if (!isFinite(v)) return '—';
+        return Number.isInteger(v)
+          ? v.toLocaleString()
+          : v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+      }
+      // Trim long strings
+      const s = String(v);
+      return s.length > 120 ? s.slice(0, 120) + '…' : s;
+    }
+
+    /* ════════════════════════════════════════════
+       THEME TOGGLE
+    ════════════════════════════════════════════ */
+    const themeBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeLabel = document.getElementById('theme-label');
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('quill-ui-theme', theme);
+      if (theme === 'light') {
+        themeIcon.className = 'fa-solid fa-moon text-[11px]';
+        themeLabel.textContent = 'Dark Mode';
+      } else {
+        themeIcon.className = 'fa-solid fa-sun text-[11px]';
+        themeLabel.textContent = 'Light Mode';
+      }
+
+      const isLight = theme === 'light';
+
+      const darkBgColors = ['rgba(99,102,241,0.9)', 'rgba(129,140,248,0.8)', 'rgba(165,180,252,0.7)', 'rgba(199,210,254,0.6)', 'rgba(224,231,255,0.5)'];
+      const darkBorderColors = ['rgba(79,70,229,1)', 'rgba(99,102,241,1)', 'rgba(129,140,248,1)', 'rgba(165,180,252,1)', 'rgba(199,210,254,1)'];
+
+      const lightBgColors = ['rgba(20,184,166,0.9)', 'rgba(45,212,191,0.8)', 'rgba(94,234,212,0.7)', 'rgba(153,246,228,0.6)', 'rgba(204,251,241,0.5)'];
+      const lightBorderColors = ['rgba(13,148,136,1)', 'rgba(20,184,166,1)', 'rgba(45,212,191,1)', 'rgba(94,234,212,1)', 'rgba(153,246,228,1)'];
+
+      const newBgColors = isLight ? lightBgColors : darkBgColors;
+      const newBorderColors = isLight ? lightBorderColors : darkBorderColors;
+
+      const tickColor = isLight ? '#52525b' : '#94a3b8';
+      const gridColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+      const tooltipBg = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 17, 23, 0.9)';
+      const tooltipText = isLight ? '#09090b' : '#e2e8f0';
+      const tooltipBorder = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255, 255, 255, 0.1)';
+      Chart.defaults.color = tickColor;
+
+      if (typeof Chart !== 'undefined') {
+        for (let id in Chart.instances) {
+          const c = Chart.instances[id];
+
+          c.data.datasets.forEach((dataset, i) => {
+            dataset.backgroundColor = newBgColors[i % newBgColors.length];
+            dataset.borderColor = newBorderColors[i % newBorderColors.length];
+            if (dataset.pointBackgroundColor) {
+              dataset.pointBackgroundColor = newBorderColors[0];
+            }
+          });
+
+          if (c.options.scales.x) {
+            c.options.scales.x.ticks.color = tickColor;
+            c.options.scales.x.grid.color = gridColor;
+          }
+          if (c.options.scales.y) {
+            c.options.scales.y.ticks.color = tickColor;
+            c.options.scales.y.grid.color = gridColor;
+          }
+          if (c.options.plugins.legend) {
+            c.options.plugins.legend.labels.color = tickColor;
+          }
+          if (c.options.plugins.tooltip) {
+            c.options.plugins.tooltip.backgroundColor = tooltipBg;
+            c.options.plugins.tooltip.titleColor = tooltipText;
+            c.options.plugins.tooltip.bodyColor = tooltipText;
+            c.options.plugins.tooltip.borderColor = tooltipBorder;
+          }
+          c.update();
+        }
+      }
+    }
+
+    const savedTheme = localStorage.getItem('quill-ui-theme') || 'dark';
+    applyTheme(savedTheme);
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        applyTheme(current === 'light' ? 'dark' : 'light');
+      });
+    }
+
+    document.addEventListener('keydown', e => {
+      // Allow L to toggle only if not typing in an input text field
+      if ((e.key === 'l' || e.key === 'L') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        const current = document.documentElement.getAttribute('data-theme');
+        applyTheme(current === 'light' ? 'dark' : 'light');
+      }
+    });
+
+  </script>
+</body>
+
+</html>
