@@ -24,6 +24,7 @@
 - [What is Quill?](#what-is-quill)
 - [Features](#features)
 - [Architecture](#architecture)
+- [How It Works](#how-it-works)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
 - [API Reference](#api-reference)
@@ -110,6 +111,184 @@ Results → SSE Stream → Chart + Table + AI Insight Summary
 **Hybrid matching.** The resolver uses `thefuzz` for fuzzy string matching plus `sentence-transformers` (`all-MiniLM-L6-v2`) for semantic similarity. Falls back to fuzzy-only if transformers are unavailable.
 
 **Prompt caching.** The database schema is injected into every LLM call. For large schemas this is expensive. Quill applies `cache_control: ephemeral` on the system prompt block so schema tokens are only processed once per cache window — cutting latency up to 90% and cost up to 75%.
+
+---
+
+## How It Works
+
+### Schema Pruning
+
+Before the LLM ever sees your database, Quill reduces the schema to only the columns that are relevant to the question. This is the single most important technique for accurate Text-to-SQL.
+
+**The problem it solves:** A naive approach passes the entire schema to the LLM on every call. For a database with 20+ tables and hundreds of columns, this bloats the context window, increases latency, raises cost, and — critically — gives the model more opportunity to hallucinate column names that look plausible but don't exist.
+
+**How pruning works:**
+
+1. The question is tokenized and stripped of stop words (`the`, `a`, `show`, `me`, `what`, `is`, etc.)
+2. Every column in the selected tables is scored against each keyword using the hybrid matcher (see below)
+3. Only columns scoring ≥ 70 are passed to the SQL Generator
+4. For matched columns, up to 5 distinct sample values are appended as grounding hints
+
+```
+Question: "top customers by revenue in Germany"
+
+Keywords extracted: ["top", "customers", "revenue", "germany"]
+
+Scoring against schema:
+  customers.customerID     → fuzzy("customers", "customerID") = 72  ✓ included
+  customers.country        → semantic("germany", "country")   = 81  ✓ included
+  order_details.unitPrice  → semantic("revenue", "unitPrice") = 74  ✓ included
+  order_details.quantity   → semantic("revenue", "quantity")  = 71  ✓ included
+  employees.birthDate      → max score = 12                         ✗ pruned
+  products.reorderLevel    → max score = 8                          ✗ pruned
+
+Pruned schema sent to LLM: 4 columns across 2 tables (instead of 60+ across 6)
+```
+
+---
+
+### Hybrid Matching: Fuzzy + Semantic
+
+The schema pruner uses two complementary matching strategies. Neither alone is sufficient.
+
+#### Fuzzy Matching (`thefuzz`)
+
+Uses Levenshtein-based partial string matching. Good for exact and near-exact identifier matches.
+
+```python
+from thefuzz import fuzz
+fuzz.partial_ratio("revenue", "unitPrice")   # → 33  (no overlap)
+fuzz.partial_ratio("customer", "customerID") # → 89  (strong match)
+fuzz.partial_ratio("order", "orderDate")     # → 100 (exact prefix)
+```
+
+Strength: catches abbreviations, prefixes, and minor typos.
+Weakness: "revenue" and "unitPrice" share no substrings, even though they're semantically related.
+
+#### Semantic Matching (`sentence-transformers`)
+
+Uses the `all-MiniLM-L6-v2` model to encode both the question keyword and every column name as 384-dimensional vectors, then computes cosine similarity.
+
+```python
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+kw  = model.encode(["revenue"])
+col = model.encode(["unitPrice", "quantity", "discount"])
+
+cosine_similarity(kw, col)
+# → [[0.74, 0.71, 0.38]]  — unitPrice and quantity match "revenue" semantically
+```
+
+Strength: captures meaning across different surface forms ("revenue" → "unitPrice × quantity").
+Weakness: can be too liberal without a threshold (everything is *somewhat* similar).
+
+#### Hybrid Score
+
+The final score for each `(keyword, column)` pair is:
+
+```
+score = max(fuzzy_score, semantic_score × 100)
+
+If score ≥ 70  →  column is included in pruned schema
+```
+
+Taking the max means a column is included if *either* method is confident. This gives fuzzy matching priority for direct identifier matches while letting semantic matching catch related-but-differently-named columns.
+
+| Keyword | Column | Fuzzy | Semantic | Final | Included? |
+|---|---|---|---|---|---|
+| `"customer"` | `customerID` | 89 | 61 | **89** | ✓ |
+| `"revenue"` | `unitPrice` | 33 | 74 | **74** | ✓ |
+| `"germany"` | `country` | 29 | 81 | **81** | ✓ |
+| `"order"` | `birthDate` | 18 | 11 | **18** | ✗ |
+
+---
+
+### Automatic Relationship Detection
+
+Quill scans all column names across selected tables and uses fuzzy matching to detect likely foreign-key relationships — without requiring explicit schema annotations.
+
+```python
+# fuzz.ratio >= 85 between columns across different tables
+"orders.customerID"  ↔  "customers.customerID"  →  ratio: 100  ✓
+"orders.employeeID"  ↔  "employees.employeeID"  →  ratio: 100  ✓
+"orders.orderID"     ↔  "order_details.orderID" →  ratio: 100  ✓
+```
+
+Detected relationships are injected into the SQL Generator prompt as explicit JOIN hints, reducing the chance of the model picking arbitrary join keys.
+
+---
+
+### Coreference Resolution
+
+Quill maintains a `chatHistory` array in the frontend and sends it with every request. The SQL Generator's system prompt enforces a strict resolution rule:
+
+> *"If the question contains pronouns or references ('those', 'them', 'it', 'these', 'that'), resolve them by inspecting the prior SQL queries in chat history. Generate a new, self-contained SQL query — never reference prior query results directly."*
+
+```
+Turn 1:
+  Q:   "Top 10 products by revenue"
+  SQL: SELECT "productName", SUM("unitPrice" * "quantity") AS revenue
+       FROM "order_details" JOIN "products" ...
+       ORDER BY revenue DESC LIMIT 10
+
+Turn 2:
+  Q:   "Which of those are in the Beverages category?"
+  →    Resolver sees "those" → inspects Turn 1 SQL → identifies "products" table
+  SQL: SELECT "productName", SUM("unitPrice" * "quantity") AS revenue
+       FROM "order_details" JOIN "products" ...
+       WHERE "categoryName" = 'Beverages'           ← resolved from context
+       ORDER BY revenue DESC LIMIT 10
+```
+
+Each follow-up generates a fully self-contained query, not a subquery or cursor over previous results.
+
+---
+
+### Critic Agent & Self-Correction Loop
+
+The Critic Agent wraps SQL execution in a structured retry loop. It is the boundary between probabilistic LLM output and deterministic database execution.
+
+```
+Attempt 1:
+  Execute SQL → RuntimeError: column "CustomerName" does not exist
+  → Append to failure history: { sql, error }
+  → Call LLM: "Fix this SQL. The column does not exist. Available columns: customerID, companyName, ..."
+  → LLM returns corrected SQL
+
+Attempt 2:
+  Execute SQL → RuntimeError: syntax error at "GROUP"
+  → Append to failure history: [attempt1, attempt2]
+  → Call LLM: "Fix this SQL. Prior attempts also failed: [...]"
+  → LLM returns corrected SQL
+
+Attempt 3:
+  Execute SQL → Success → return { data, attempts: 3 }
+
+Max retries (3) exceeded → surface error to user
+```
+
+The full failure history is passed on each retry. This prevents the model from making the same mistake twice and gives it an implicit reasoning chain for diagnosing root causes.
+
+---
+
+### Prompt Caching
+
+Every LLM call embeds the full database schema in the system prompt. For large schemas this is both slow and expensive.
+
+Quill applies Anthropic's `cache_control: ephemeral` to the system prompt block:
+
+```python
+system_blocks = [{
+    "type": "text",
+    "text": schema_prompt,         # can be thousands of tokens
+    "cache_control": {"type": "ephemeral"}
+}]
+```
+
+On the first call, the schema tokens are processed and cached server-side. On subsequent calls within the cache window, those tokens are served from cache and not reprocessed — reducing schema-token latency by up to **90%** and cost by up to **75%**. Only the user's question (tens of tokens) is processed fresh each time.
 
 ---
 
