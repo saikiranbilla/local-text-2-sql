@@ -782,63 +782,244 @@
         <div class="max-w-5xl mx-auto">
             <p class="text-xs font-semibold text-zinc-600 uppercase tracking-widest mb-4 text-center">Architecture</p>
             <h2 class="text-3xl font-bold text-zinc-100 text-center mb-4 tracking-tight">A compound AI pipeline.</h2>
-            <p class="text-zinc-500 text-center text-sm mb-14 max-w-lg mx-auto">Each agent is small, specialized, and
+            <p class="text-zinc-500 text-center text-sm mb-10 max-w-lg mx-auto">Each agent is small, specialized, and
                 verifiable. No black-box monoliths.</p>
+
+            <!-- Pipeline Flow -->
+            <div class="flex items-center justify-center flex-wrap gap-2 mb-14">
+                <div class="px-4 py-2.5 rounded-lg border border-zinc-800 bg-zinc-950 text-center">
+                    <div class="text-[10px] text-zinc-600 font-mono mb-0.5">01</div>
+                    <div class="text-xs font-semibold text-zinc-300 whitespace-nowrap">Relevance Gate</div>
+                </div>
+                <span class="text-zinc-700 font-mono">→</span>
+                <div class="px-4 py-2.5 rounded-lg border border-zinc-800 bg-zinc-950 text-center">
+                    <div class="text-[10px] text-zinc-600 font-mono mb-0.5">02</div>
+                    <div class="text-xs font-semibold text-zinc-300 whitespace-nowrap">Semantic Resolver</div>
+                </div>
+                <span class="text-zinc-700 font-mono">→</span>
+                <div class="px-4 py-2.5 rounded-lg border border-zinc-800 bg-zinc-950 text-center">
+                    <div class="text-[10px] text-zinc-600 font-mono mb-0.5">03</div>
+                    <div class="text-xs font-semibold text-zinc-300 whitespace-nowrap">SQL Generator</div>
+                </div>
+                <span class="text-zinc-700 font-mono">→</span>
+                <div class="px-4 py-2.5 rounded-lg border border-zinc-800 bg-zinc-950 text-center">
+                    <div class="text-[10px] text-zinc-600 font-mono mb-0.5">04</div>
+                    <div class="text-xs font-semibold text-zinc-300 whitespace-nowrap">Critic Agent</div>
+                </div>
+                <span class="text-zinc-700 font-mono">→</span>
+                <div class="px-4 py-2.5 rounded-lg border border-emerald-900/50 bg-emerald-950/20 text-center">
+                    <div class="text-[10px] text-emerald-700 font-mono mb-0.5">out</div>
+                    <div class="text-xs font-semibold text-emerald-400 whitespace-nowrap">Results + Chart</div>
+                </div>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <!-- Card 1 -->
                 <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6">
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-3 mb-3">
                         <div
                             class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-mono font-bold">
                             01</div>
                         <h3 class="text-sm font-semibold text-zinc-100">Semantic Resolver</h3>
                     </div>
-                    <p class="text-zinc-500 text-sm leading-relaxed">Hybrid fuzzy-matching engine that prunes the full
-                        database schema down to only the tables relevant to the user's question. Prevents the LLM from
-                        hallucinating column names by reducing its search space before generation.</p>
+                    <p class="text-zinc-500 text-sm leading-relaxed mb-4">Hybrid fuzzy + embedding matching engine
+                        (<code class="text-zinc-400 bg-zinc-900 px-1.5 py-0.5 rounded text-xs font-mono">thefuzz</code>
+                        + <code class="text-zinc-400 bg-zinc-900 px-1.5 py-0.5 rounded text-xs font-mono">all-MiniLM-L6-v2</code>)
+                        scores every column against the question and prunes the schema to only relevant tables. Prevents
+                        the LLM from hallucinating column names by reducing its search space before generation.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs text-zinc-500 leading-relaxed">
+                        <span class="text-zinc-600">question &nbsp;</span><span class="text-zinc-300">"revenue by country"</span><br/>
+                        <span class="text-zinc-600">schema &nbsp;&nbsp;</span><span class="text-zinc-500">60 columns across 6 tables</span><br/>
+                        <span class="text-zinc-600">resolved &nbsp;</span><span class="text-green-400">4 columns · 2 tables &nbsp;✓</span>
+                    </div>
                 </div>
 
                 <!-- Card 2 -->
                 <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6">
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-3 mb-3">
                         <div
                             class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-mono font-bold">
                             02</div>
                         <h3 class="text-sm font-semibold text-zinc-100">SQL Generator</h3>
                     </div>
-                    <p class="text-zinc-500 text-sm leading-relaxed">Claude Haiku (or local Qwen2.5) generates a
-                        DuckDB-dialect SQL query from the pruned schema. Uses Anthropic Prompt Caching to reduce latency
-                        by up to 90% on repeated schema lookups. Supports coreference resolution for follow-up
-                        questions.</p>
+                    <p class="text-zinc-500 text-sm leading-relaxed mb-4">LLM via
+                        <code class="text-zinc-400 bg-zinc-900 px-1.5 py-0.5 rounded text-xs font-mono">Keywords AI</code>
+                        generates DuckDB-dialect SQL from the pruned schema. Applies
+                        <code class="text-zinc-400 bg-zinc-900 px-1.5 py-0.5 rounded text-xs font-mono">cache_control: ephemeral</code>
+                        on the system prompt — schema tokens are cached server-side, cutting latency up to 90%.
+                        Chat history is injected to resolve follow-up pronouns.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs text-zinc-500 leading-relaxed">
+                        <span class="text-zinc-600">cache hit &nbsp;</span><span class="text-green-400">schema tokens served from cache</span><br/>
+                        <span class="text-zinc-600">processed &nbsp;</span><span class="text-zinc-300">question only (~20 tokens)</span><br/>
+                        <span class="text-zinc-600">latency &nbsp;&nbsp;</span><span class="text-green-400">↓ 90% vs. uncached &nbsp;✓</span>
+                    </div>
                 </div>
 
                 <!-- Card 3 -->
                 <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6">
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-3 mb-3">
                         <div
                             class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-mono font-bold">
                             03</div>
                         <h3 class="text-sm font-semibold text-zinc-100">Critic Agent</h3>
                     </div>
-                    <p class="text-zinc-500 text-sm leading-relaxed">A self-correcting execution loop. If the generated
-                        SQL throws an error, the Critic Agent receives the error message alongside the failed query and
-                        attempts a fix — up to 3 times. Guarantees deterministic outputs, not probabilistic ones.</p>
+                    <p class="text-zinc-500 text-sm leading-relaxed mb-4">A self-correcting execution loop. If generated
+                        SQL fails, the Critic Agent receives the exact error message plus full failure history and
+                        attempts a fix — up to 3 times. Each retry builds on previous attempts so the model never
+                        repeats the same mistake twice.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs text-zinc-500 leading-relaxed">
+                        <span class="text-zinc-600">attempt 1 &nbsp;</span><span class="text-red-400">column "Name" does not exist</span><br/>
+                        <span class="text-zinc-600">attempt 2 &nbsp;</span><span class="text-yellow-500">syntax error near GROUP</span><br/>
+                        <span class="text-zinc-600">attempt 3 &nbsp;</span><span class="text-green-400">830 rows returned &nbsp;✓</span>
+                    </div>
                 </div>
 
                 <!-- Card 4 -->
                 <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6">
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-3 mb-3">
                         <div
                             class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-mono font-bold">
                             04</div>
                         <h3 class="text-sm font-semibold text-zinc-100">Local Execution (DuckDB)</h3>
                     </div>
-                    <p class="text-zinc-500 text-sm leading-relaxed">All data processing runs in-process via DuckDB — an
-                        embedded analytical database. No cloud warehouse. No data transmitted to third parties. Your CSV
-                        files stay on your machine. Results stream back to the UI in real-time via Server-Sent Events.
-                    </p>
+                    <p class="text-zinc-500 text-sm leading-relaxed mb-4">All data processing runs in-process via
+                        DuckDB — an embedded OLAP database optimised for analytical queries. No cloud warehouse. No data
+                        transmitted to third parties. Results stream back to the UI in real-time via Server-Sent Events
+                        with ~20–50ms query latency.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs text-zinc-500 leading-relaxed">
+                        <span class="text-zinc-600">data leaves machine &nbsp;</span><span class="text-green-400">never &nbsp;✓</span><br/>
+                        <span class="text-zinc-600">query latency &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="text-green-400">~20–50ms &nbsp;✓</span><br/>
+                        <span class="text-zinc-600">streaming protocol &nbsp;</span><span class="text-zinc-300">SSE (chunked)</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ UNDER THE HOOD ═══════════ -->
+    <section class="py-24 px-6 border-b border-zinc-900">
+        <div class="max-w-5xl mx-auto">
+            <p class="text-xs font-semibold text-zinc-600 uppercase tracking-widest mb-4 text-center">Under the Hood</p>
+            <h2 class="text-3xl font-bold text-zinc-100 text-center mb-4 tracking-tight">Built for accuracy, not just
+                speed.</h2>
+            <p class="text-zinc-500 text-center text-sm mb-14 max-w-lg mx-auto">Each component addresses a specific,
+                well-known failure mode in naive Text-to-SQL systems.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                <!-- Schema Pruning -->
+                <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6 flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-950/50 border border-indigo-900/40 flex items-center justify-center text-indigo-400 text-sm">
+                            ⌦
+                        </div>
+                        <h3 class="text-sm font-semibold text-zinc-100">Schema Pruning</h3>
+                    </div>
+                    <p class="text-zinc-500 text-sm leading-relaxed">The LLM never sees the full schema. Every column is
+                        scored against the question and only those scoring ≥ 70 are passed in — grounding the model in
+                        real identifiers and eliminating hallucination opportunity.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs leading-relaxed mt-auto">
+                        <div class="text-zinc-600 mb-1">// "revenue by country"</div>
+                        <div><span class="text-green-400">✓</span> <span class="text-zinc-400">customers.country</span> <span class="text-zinc-600 ml-1">81</span></div>
+                        <div><span class="text-green-400">✓</span> <span class="text-zinc-400">order_details.unitPrice</span> <span class="text-zinc-600 ml-1">74</span></div>
+                        <div><span class="text-red-500">✗</span> <span class="text-zinc-600">employees.birthDate</span> <span class="text-zinc-700 ml-1">12</span></div>
+                    </div>
+                </div>
+
+                <!-- Hybrid Matching -->
+                <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6 flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-950/50 border border-indigo-900/40 flex items-center justify-center text-indigo-400 text-sm">
+                            ⊕
+                        </div>
+                        <h3 class="text-sm font-semibold text-zinc-100">Hybrid Fuzzy + Semantic</h3>
+                    </div>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Fuzzy matching catches abbreviations and typos.
+                        Semantic matching (384-dim embeddings) catches meaning even when surface forms are completely
+                        different. The final score is the max of both — include if either is confident.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs leading-relaxed mt-auto">
+                        <div class="text-zinc-600 mb-1">// keyword: "revenue"</div>
+                        <div><span class="text-zinc-500">fuzzy &nbsp;&nbsp;</span><span class="text-zinc-400">"unitPrice"</span> <span class="text-red-400 ml-1">→ 33</span></div>
+                        <div><span class="text-zinc-500">semantic</span><span class="text-zinc-400"> "unitPrice"</span> <span class="text-green-400 ml-1">→ 74 ✓</span></div>
+                        <div class="text-zinc-600 mt-1">max(33, 74) = 74  →  included</div>
+                    </div>
+                </div>
+
+                <!-- Coreference Resolution -->
+                <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6 flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-950/50 border border-indigo-900/40 flex items-center justify-center text-indigo-400 text-sm">
+                            ↩
+                        </div>
+                        <h3 class="text-sm font-semibold text-zinc-100">Coreference Resolution</h3>
+                    </div>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Chat history is sent with every request. The SQL
+                        Generator resolves pronouns ("those", "them", "that") by inspecting prior SQL — generating a
+                        fresh, self-contained query each time instead of referencing previous results.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs leading-relaxed mt-auto">
+                        <div><span class="text-zinc-600">turn 1 &nbsp;</span><span class="text-zinc-300">"top 10 by revenue"</span></div>
+                        <div><span class="text-zinc-600">turn 2 &nbsp;</span><span class="text-zinc-300">"which of those in DE?"</span></div>
+                        <div class="text-green-400 mt-1">↳ "those" → prior SQL context</div>
+                        <div class="text-green-400">&nbsp;&nbsp;&nbsp;new self-contained query ✓</div>
+                    </div>
+                </div>
+
+                <!-- Critic Loop -->
+                <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6 flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-950/50 border border-indigo-900/40 flex items-center justify-center text-indigo-400 text-sm">
+                            ↺
+                        </div>
+                        <h3 class="text-sm font-semibold text-zinc-100">Self-Correcting Critic Loop</h3>
+                    </div>
+                    <p class="text-zinc-500 text-sm leading-relaxed">SQL is deterministic — it works or it doesn't. On
+                        failure, the exact error message and full failure history are fed back to the LLM. The model
+                        can't repeat the same mistake because it sees every prior attempt.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs leading-relaxed mt-auto">
+                        <div><span class="text-zinc-600">exec &nbsp;</span><span class="text-red-400">column "Name" not found</span></div>
+                        <div><span class="text-zinc-600">fix &nbsp;&nbsp;</span><span class="text-zinc-400">+ error + history → LLM</span></div>
+                        <div><span class="text-zinc-600">exec &nbsp;</span><span class="text-green-400">✓  3 rows returned</span></div>
+                    </div>
+                </div>
+
+                <!-- Prompt Caching -->
+                <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6 flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-950/50 border border-indigo-900/40 flex items-center justify-center text-indigo-400 text-sm">
+                            ⚡
+                        </div>
+                        <h3 class="text-sm font-semibold text-zinc-100">Prompt Caching</h3>
+                    </div>
+                    <p class="text-zinc-500 text-sm leading-relaxed">The database schema is embedded in every LLM call.
+                        Quill marks it with
+                        <code class="text-zinc-400 bg-zinc-900 px-1 rounded">cache_control: ephemeral</code>
+                        so those tokens are processed once and served from cache thereafter — cutting latency by 90%
+                        and cost by 75%.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs leading-relaxed mt-auto">
+                        <div><span class="text-zinc-600">call 1 &nbsp;</span><span class="text-zinc-400">schema processed + cached</span></div>
+                        <div><span class="text-zinc-600">call 2+ </span><span class="text-green-400">schema from cache ✓</span></div>
+                        <div class="text-zinc-600 mt-1">latency ↓90% · cost ↓75%</div>
+                    </div>
+                </div>
+
+                <!-- Auto-Visualization -->
+                <div class="card-hover rounded-xl border border-zinc-900 bg-zinc-950 p-6 flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-950/50 border border-indigo-900/40 flex items-center justify-center text-indigo-400 text-sm">
+                            ▦
+                        </div>
+                        <h3 class="text-sm font-semibold text-zinc-100">Auto-Visualization</h3>
+                    </div>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Quill inspects the shape of your results and picks
+                        the right chart type automatically. Grade distributions become stacked bars. Trends become line
+                        charts. Top-N rankings become sorted horizontal bars with inline data labels.</p>
+                    <div class="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 font-mono text-xs leading-relaxed mt-auto">
+                        <div><span class="text-zinc-600">grade cols &nbsp;&nbsp;</span><span class="text-zinc-400">→ stacked bar</span></div>
+                        <div><span class="text-zinc-600">year/term col </span><span class="text-zinc-400">→ line chart</span></div>
+                        <div><span class="text-zinc-600">top-N, 1 col &nbsp;</span><span class="text-zinc-400">→ horizontal bar</span></div>
+                    </div>
                 </div>
 
             </div>
@@ -850,26 +1031,66 @@
         <div class="max-w-3xl mx-auto text-center">
             <p class="text-xs font-semibold text-zinc-600 uppercase tracking-widest mb-8">Tech Stack</p>
             <div class="flex flex-wrap items-center justify-center gap-3">
-                <span
-                    class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">DuckDB</span>
-                <span
-                    class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">FastAPI</span>
-                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Claude
-                    Haiku</span>
-                <span
-                    class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Qwen2.5
-                    (local)</span>
-                <span
-                    class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Vanilla
-                    JS</span>
-                <span
-                    class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Server-Sent
-                    Events</span>
-                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Python
-                    3.11+</span>
-                <span
-                    class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Tailwind
-                    CSS</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">DuckDB</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">FastAPI</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Keywords AI</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Claude Haiku</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">sentence-transformers</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Anthropic SDK</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Vanilla JS</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Server-Sent Events</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Python 3.11+</span>
+                <span class="badge border border-zinc-800 text-zinc-400 bg-zinc-900 px-4 py-2 rounded-lg text-xs">Tailwind CSS</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ COMPARISON ═══════════ -->
+    <section class="py-24 px-6 border-b border-zinc-900">
+        <div class="max-w-4xl mx-auto">
+            <p class="text-xs font-semibold text-zinc-600 uppercase tracking-widest mb-4 text-center">Why Local?</p>
+            <h2 class="text-3xl font-bold text-zinc-100 text-center mb-4 tracking-tight">Cloud BI has a price.</h2>
+            <p class="text-zinc-500 text-center text-sm mb-14 max-w-lg mx-auto">Quill solves the 80% use case — CSV
+                analytics, local databases, privacy-sensitive data — that cloud platforms dramatically overprice.</p>
+
+            <div class="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden">
+                <!-- Header row -->
+                <div class="grid grid-cols-3 border-b border-zinc-800 bg-zinc-900/40">
+                    <div class="px-6 py-4 text-xs font-semibold text-zinc-600 uppercase tracking-wider">Dimension</div>
+                    <div class="px-6 py-4 text-xs font-semibold text-indigo-400 uppercase tracking-wider border-l border-zinc-800">Quill (Local-First)</div>
+                    <div class="px-6 py-4 text-xs font-semibold text-zinc-600 uppercase tracking-wider border-l border-zinc-800">Cloud BI (e.g. Databricks Genie)</div>
+                </div>
+                <!-- Rows -->
+                <div class="grid grid-cols-3 border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
+                    <div class="px-6 py-4 text-sm font-medium text-zinc-300">Data Privacy</div>
+                    <div class="px-6 py-4 text-sm text-green-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✓</span> Stays on your machine</div>
+                    <div class="px-6 py-4 text-sm text-red-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✗</span> Uploaded to cloud warehouse</div>
+                </div>
+                <div class="grid grid-cols-3 border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
+                    <div class="px-6 py-4 text-sm font-medium text-zinc-300">Cost</div>
+                    <div class="px-6 py-4 text-sm text-green-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✓</span> Zero egress / query cost</div>
+                    <div class="px-6 py-4 text-sm text-red-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✗</span> Per-query compute billing</div>
+                </div>
+                <div class="grid grid-cols-3 border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
+                    <div class="px-6 py-4 text-sm font-medium text-zinc-300">Query Latency</div>
+                    <div class="px-6 py-4 text-sm text-green-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✓</span> ~20–50ms (in-process DuckDB)</div>
+                    <div class="px-6 py-4 text-sm text-zinc-500 border-l border-zinc-800/50 flex items-center gap-2"><span>⚠</span> Network roundtrips + cluster spin-up</div>
+                </div>
+                <div class="grid grid-cols-3 border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
+                    <div class="px-6 py-4 text-sm font-medium text-zinc-300">Setup</div>
+                    <div class="px-6 py-4 text-sm text-green-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✓</span> pip install + run</div>
+                    <div class="px-6 py-4 text-sm text-red-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✗</span> Cloud account, IAM, cluster config</div>
+                </div>
+                <div class="grid grid-cols-3 border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
+                    <div class="px-6 py-4 text-sm font-medium text-zinc-300">SQL Dialect</div>
+                    <div class="px-6 py-4 text-sm text-zinc-300 border-l border-zinc-800/50">DuckDB (OLAP-optimised)</div>
+                    <div class="px-6 py-4 text-sm text-zinc-500 border-l border-zinc-800/50">Spark SQL / proprietary</div>
+                </div>
+                <div class="grid grid-cols-3 hover:bg-zinc-900/20 transition-colors">
+                    <div class="px-6 py-4 text-sm font-medium text-zinc-300">Customization</div>
+                    <div class="px-6 py-4 text-sm text-green-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✓</span> Full control over agents &amp; prompts</div>
+                    <div class="px-6 py-4 text-sm text-red-400 border-l border-zinc-800/50 flex items-center gap-2"><span>✗</span> Black-box vendor implementation</div>
+                </div>
             </div>
         </div>
     </section>

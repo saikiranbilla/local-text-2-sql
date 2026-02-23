@@ -763,6 +763,314 @@
       color: var(--muted);
       font-size: 13.5px;
     }
+
+    /* ══════════════════════════════════════════
+       ABOUT PANEL
+    ══════════════════════════════════════════ */
+    .about-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .about-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .about-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 500px;
+      max-width: 92vw;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      z-index: 101;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -24px 0 64px rgba(0, 0, 0, 0.5);
+    }
+
+    .about-panel.open {
+      transform: translateX(0);
+    }
+
+    .about-panel-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .about-panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .about-panel-sub {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .about-close-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .about-close-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: var(--muted);
+    }
+
+    .about-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .about-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .about-description {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .about-description strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Pipeline */
+    .pipeline-flow {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pipeline-stage {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .pipeline-dot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .pipeline-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .pipeline-line {
+      width: 1px;
+      flex: 1;
+      min-height: 20px;
+      background: var(--border);
+      margin: 3px 0;
+    }
+
+    .pipeline-content {
+      padding-bottom: 18px;
+      flex: 1;
+    }
+
+    .pipeline-stage:last-child .pipeline-content {
+      padding-bottom: 0;
+    }
+
+    .pipeline-stage-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .pipeline-stage-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* Concept Accordions */
+    .concept-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    details.concept-details {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    details.concept-details summary {
+      padding: 11px 13px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      list-style: none;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    details.concept-details summary:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    details.concept-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.concept-details[open] summary {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .concept-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #818cf8;
+      flex-shrink: 0;
+    }
+
+    .concept-chevron {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+
+    details.concept-details[open] .concept-chevron {
+      transform: rotate(90deg);
+    }
+
+    .concept-body {
+      padding: 13px 15px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .concept-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .concept-body code {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--sql);
+    }
+
+    .concept-example {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 11px;
+      color: var(--sql);
+      line-height: 1.6;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* Tips */
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tip-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .tip-icon {
+      color: #818cf8;
+      font-size: 11px;
+      margin-top: 2px;
+      flex-shrink: 0;
+      width: 14px;
+    }
+
+    .tip-item strong {
+      color: var(--text);
+      font-weight: 500;
+    }
   </style>
   <style>
     /* ── LIGHT MODE OVERRIDES ── */
@@ -850,6 +1158,24 @@
       background: rgba(0, 0, 0, 0.02) !important;
     }
 
+    [data-theme="light"] details.concept-details {
+      background: #ffffff;
+    }
+
+    [data-theme="light"] .concept-body code {
+      background: rgba(0, 0, 0, 0.05);
+      color: #18181b;
+    }
+
+    [data-theme="light"] .concept-example {
+      background: rgba(0, 0, 0, 0.04);
+      color: #18181b;
+    }
+
+    [data-theme="light"] details.concept-details summary:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
     body,
     .sidebar,
     .main,
@@ -903,6 +1229,11 @@
         <i id="theme-icon" class="fa-solid fa-sun text-[11px]"></i> <span id="theme-label">Light Mode</span>
       </button>
 
+      <button onclick="openAbout()"
+        class="w-full py-1.5 mb-1 border border-zinc-800 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 px-3 text-[12px]">
+        <i class="fa-solid fa-circle-info text-[11px]"></i> How it works
+      </button>
+
       <div class="divider"></div>
 
       <div class="divider"></div>
@@ -953,7 +1284,7 @@
 
       <div class="text-center text-[11px] text-zinc-500 opacity-75">
         <i class="fa-solid fa-microchip"></i>
-        Powered by Qwen2.5 + DuckDB
+        Powered by Keywords AI · DuckDB
       </div>
     </div>
   </aside>
@@ -1008,6 +1339,218 @@
       </div>
     </div>
   </main>
+
+  <!-- ═══════════════════════════════════════════
+     ABOUT PANEL
+══════════════════════════════════════════════ -->
+  <div class="about-overlay" id="aboutOverlay" onclick="closeAbout()"></div>
+
+  <div class="about-panel" id="aboutPanel">
+    <div class="about-panel-header">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <defs>
+          <linearGradient id="qSA" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#818CF8" />
+            <stop offset="100%" stop-color="#6366F1" />
+          </linearGradient>
+        </defs>
+        <circle cx="10.5" cy="10.5" r="6.5" stroke="url(#qSA)" stroke-width="1.5" />
+        <path d="M 12 11.5 C 17 12.5 19.5 15.5 21.5 21.5 C 15.5 19.5 12.5 17 11.5 12 Z" fill="url(#qSA)" />
+        <path d="M 18 3 L 18.25 4.75 L 20 5 L 18.25 5.25 L 18 7 L 17.75 5.25 L 16 5 L 17.75 4.75 Z" fill="url(#qSA)" opacity="0.8" />
+      </svg>
+      <div>
+        <div class="about-panel-title">How Quill Works</div>
+        <div class="about-panel-sub">Natural Language → SQL → Results</div>
+      </div>
+      <button class="about-close-btn" onclick="closeAbout()" title="Close (Esc)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="about-body custom-scrollbar">
+
+      <!-- What is Quill -->
+      <div>
+        <div class="about-section-label">What is Quill?</div>
+        <p class="about-description">
+          Quill is a <strong>compound AI agent</strong> that turns natural language questions into SQL, executes them against your local data, and streams back results with charts and AI-generated insights — entirely on your machine.
+        </p>
+        <p class="about-description" style="margin-top:8px;">
+          No cloud warehouse. No data leaving your machine. No per-query billing. Upload a CSV and start querying in seconds.
+        </p>
+      </div>
+
+      <!-- Pipeline -->
+      <div>
+        <div class="about-section-label">The 4-Stage Pipeline</div>
+        <div class="pipeline-flow">
+          <div class="pipeline-stage">
+            <div class="pipeline-dot-col">
+              <div class="pipeline-dot">1</div>
+              <div class="pipeline-line"></div>
+            </div>
+            <div class="pipeline-content">
+              <div class="pipeline-stage-title">Relevance Gate</div>
+              <div class="pipeline-stage-desc">Checks whether your question is about your data. Off-topic queries are blocked immediately using keyword matching against schema identifiers — no LLM call wasted.</div>
+            </div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-dot-col">
+              <div class="pipeline-dot">2</div>
+              <div class="pipeline-line"></div>
+            </div>
+            <div class="pipeline-content">
+              <div class="pipeline-stage-title">Semantic Resolver</div>
+              <div class="pipeline-stage-desc">Maps your question's keywords to real column names using hybrid fuzzy + embedding matching. Prunes the schema down to only relevant tables and columns before anything reaches the LLM.</div>
+            </div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-dot-col">
+              <div class="pipeline-dot">3</div>
+              <div class="pipeline-line"></div>
+            </div>
+            <div class="pipeline-content">
+              <div class="pipeline-stage-title">SQL Generator</div>
+              <div class="pipeline-stage-desc">LLM generates DuckDB SQL from the pruned schema. Schema tokens are cached server-side for up to 90% latency reduction. Chat history is injected to resolve follow-up pronouns like "those" and "them".</div>
+            </div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-dot-col">
+              <div class="pipeline-dot">4</div>
+            </div>
+            <div class="pipeline-content">
+              <div class="pipeline-stage-title">Critic Agent</div>
+              <div class="pipeline-stage-desc">Executes the SQL. If it fails, sends the broken query and exact error message back to the LLM for self-correction. Retries up to 3 times before surfacing an error to you.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Concepts -->
+      <div>
+        <div class="about-section-label">Key Concepts</div>
+        <div class="concept-list">
+
+          <details class="concept-details">
+            <summary>
+              <span class="concept-icon"><i class="fa-solid fa-filter"></i></span>
+              Schema Pruning
+              <i class="fa-solid fa-chevron-right concept-chevron"></i>
+            </summary>
+            <div class="concept-body">
+              The most common failure in Text-to-SQL is the LLM hallucinating column names that don't exist. Quill solves this by <strong>never showing the full schema to the LLM</strong>. Every column is scored against your question and only those scoring ≥ 70 are passed in — dramatically reducing context size and grounding the model in real identifiers only.
+              <div class="concept-example">Question: "top customers by revenue in Germany"
+Keywords: ["customers", "revenue", "germany"]
+
+Included:  customers.customerID     score: 89  ✓
+           customers.country        score: 81  ✓
+           order_details.unitPrice  score: 74  ✓
+Pruned:    employees.birthDate      score: 12  ✗
+           products.reorderLevel    score:  8  ✗</div>
+            </div>
+          </details>
+
+          <details class="concept-details">
+            <summary>
+              <span class="concept-icon"><i class="fa-solid fa-brain"></i></span>
+              Hybrid Fuzzy + Semantic Matching
+              <i class="fa-solid fa-chevron-right concept-chevron"></i>
+            </summary>
+            <div class="concept-body">
+              Two strategies are combined. <strong>Fuzzy matching</strong> (<code>thefuzz</code>) catches abbreviations and near-exact identifier matches. <strong>Semantic matching</strong> (<code>sentence-transformers</code>, all-MiniLM-L6-v2) encodes keywords as 384-dimensional vectors and finds columns with similar meaning — even when the words are completely different on the surface.
+              <div class="concept-example">fuzz.partial_ratio("revenue", "unitPrice")   →  33  ✗
+cosine_similarity("revenue", "unitPrice")   →  74  ✓
+
+score = max(fuzzy, semantic × 100) = 74  →  included</div>
+            </div>
+          </details>
+
+          <details class="concept-details">
+            <summary>
+              <span class="concept-icon"><i class="fa-solid fa-comments"></i></span>
+              Conversational Memory
+              <i class="fa-solid fa-chevron-right concept-chevron"></i>
+            </summary>
+            <div class="concept-body">
+              Quill tracks your full conversation and sends it with every request. The SQL Generator resolves pronouns ("those", "them", "that product") by inspecting prior SQL queries — generating a fresh, fully self-contained query each time rather than referencing previous results.
+              <div class="concept-example">Turn 1: "Top 10 products by revenue"
+Turn 2: "Which of those are in Beverages?"
+         ↑ "those" resolved from Turn 1
+         → adds WHERE "categoryName" = 'Beverages'
+           to a brand new, complete SQL query</div>
+            </div>
+          </details>
+
+          <details class="concept-details">
+            <summary>
+              <span class="concept-icon"><i class="fa-solid fa-rotate"></i></span>
+              Self-Correcting Critic Loop
+              <i class="fa-solid fa-chevron-right concept-chevron"></i>
+            </summary>
+            <div class="concept-body">
+              SQL execution is binary — it works or it doesn't. When a query fails, the <strong>exact error message</strong> and the full failure history are sent back to the LLM for correction. Each retry builds on the previous attempts, preventing the model from repeating the same mistake. Up to 3 attempts before surfacing an error.
+              <div class="concept-example">Attempt 1 → Error: column "CustomerName" does not exist
+          → LLM corrects: use "companyName" instead
+Attempt 2 → Error: syntax error near GROUP
+          → LLM corrects again with full history
+Attempt 3 → ✓ Success  (2 rows returned)</div>
+            </div>
+          </details>
+
+          <details class="concept-details">
+            <summary>
+              <span class="concept-icon"><i class="fa-solid fa-bolt"></i></span>
+              Prompt Caching
+              <i class="fa-solid fa-chevron-right concept-chevron"></i>
+            </summary>
+            <div class="concept-body">
+              Every LLM call embeds the full schema in the system prompt — potentially thousands of tokens on every request. Quill applies Anthropic's <code>cache_control: ephemeral</code> so schema tokens are processed once and cached server-side. Subsequent calls serve the schema from cache, cutting latency up to <strong>90%</strong> and cost up to <strong>75%</strong> on schema tokens.
+            </div>
+          </details>
+
+          <details class="concept-details">
+            <summary>
+              <span class="concept-icon"><i class="fa-solid fa-chart-bar"></i></span>
+              Auto-Visualization
+              <i class="fa-solid fa-chevron-right concept-chevron"></i>
+            </summary>
+            <div class="concept-body">
+              Quill inspects the shape of your results and selects the most appropriate chart type automatically — no configuration needed. Grade distributions become stacked bars. Trend data becomes a line chart. Top-N rankings become sorted horizontal bars with inline data labels.
+              <div class="concept-example">2 cols, ≤10 rows, 1 numeric  →  horizontal bar (ranked)
+Year / term column detected  →  line chart (trend)
+Grade columns detected       →  stacked bar (distribution)
+Everything else              →  vertical bar</div>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div>
+        <div class="about-section-label">Tips</div>
+        <div class="tips-list">
+          <div class="tip-item">
+            <i class="fa-solid fa-table-cells tip-icon"></i>
+            <span>Toggle tables on/off in the sidebar to control which tables the LLM can access. Narrower context = faster, more accurate queries.</span>
+          </div>
+          <div class="tip-item">
+            <i class="fa-solid fa-reply tip-icon"></i>
+            <span>Ask follow-up questions naturally — <strong>"Now filter those by Germany"</strong>, <strong>"Sort by date instead"</strong>. Quill resolves the context automatically.</span>
+          </div>
+          <div class="tip-item">
+            <i class="fa-solid fa-cloud-arrow-up tip-icon"></i>
+            <span>Upload any CSV from the sidebar. Quill auto-detects column types and loads it into DuckDB instantly — no schema definition needed.</span>
+          </div>
+          <div class="tip-item">
+            <i class="fa-solid fa-code tip-icon"></i>
+            <span>Click <strong>Generated SQL</strong> on any result card to inspect the exact query that ran. Great for verifying results or copying to another tool.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <script>
     /* ════════════════════════════════════════════
@@ -1904,12 +2447,25 @@
     }
 
     document.addEventListener('keydown', e => {
-      // Allow L to toggle only if not typing in an input text field
       if ((e.key === 'l' || e.key === 'L') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
         const current = document.documentElement.getAttribute('data-theme');
         applyTheme(current === 'light' ? 'dark' : 'light');
       }
+      if (e.key === 'Escape') closeAbout();
     });
+
+    /* ════════════════════════════════════════════
+       ABOUT PANEL
+    ════════════════════════════════════════════ */
+    function openAbout() {
+      document.getElementById('aboutOverlay').classList.add('open');
+      document.getElementById('aboutPanel').classList.add('open');
+    }
+
+    function closeAbout() {
+      document.getElementById('aboutOverlay').classList.remove('open');
+      document.getElementById('aboutPanel').classList.remove('open');
+    }
 
   </script>
 </body>
