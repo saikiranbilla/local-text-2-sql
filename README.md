@@ -1,13 +1,21 @@
-# Quill — Local-First Text-to-SQL BI Agent
+<p align="center">
+  <img src="logo.svg" width="72" height="72" alt="Quill logo" />
+</p>
 
-> Ask questions about your data in plain English. Get SQL, results, and insights — all running on your machine.
+<h1 align="center">Quill — Local-First Text-to-SQL BI Agent</h1>
 
-[![MIT License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue?style=flat-square)](https://www.python.org/downloads/)
-[![DuckDB](https://img.shields.io/badge/engine-DuckDB-yellow?style=flat-square)](https://duckdb.org)
-[![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?style=flat-square)](https://fastapi.tiangolo.com)
+<p align="center">Ask questions about your data in plain English. Get SQL, results, and insights — all running on your machine.</p>
 
-![Quill Demo](demo.gif)
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/python-3.11+-blue?style=flat-square" alt="Python 3.11+" />
+  <img src="https://img.shields.io/badge/engine-DuckDB-yellow?style=flat-square" alt="DuckDB" />
+  <img src="https://img.shields.io/badge/framework-FastAPI-009688?style=flat-square" alt="FastAPI" />
+</p>
+
+<p align="center">
+  <img src="demo.gif" alt="Quill Demo" />
+</p>
 
 ---
 
